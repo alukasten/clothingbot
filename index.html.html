@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ClothingBot 🌟</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F0F7FF;
+    --card: #FFFFFF;
+    --primary: #2D7DD2;
+    --primary-dark: #1A5FA8;
+    --secondary: #3BB273;
+    --accent: #FFD166;
+    --danger: #EF476F;
+    --text: #1A1A2E;
+    --text-light: #555;
+    --radius: 24px;
+    --shadow: 0 8px 40px rgba(45,125,210,0.13);
+    --font: 'Nunito', sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  #root { width: 100%; max-width: 600px; }
+
+  .app {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--primary) 0%, #1A5FA8 100%);
+    padding: 28px 24px 22px;
+    text-align: center;
+  }
+  .header h1 { font-size: 2rem; font-weight: 900; color: white; line-height: 1.2; }
+  .header .subtitle { font-size: 1.05rem; color: rgba(255,255,255,0.88); margin-top: 4px; }
+
+  /* WEATHER BANNER */
+  .weather-banner {
+    background: var(--secondary);
+    padding: 14px 24px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 1.2rem; font-weight: 700; color: white;
+  }
+  .weather-icon { font-size: 2rem; }
+
+  /* PROGRESS */
+  .progress-bar-wrap {
+    padding: 14px 24px 0;
+    display: flex; gap: 6px;
+  }
+  .progress-step {
+    height: 8px; flex: 1; border-radius: 99px;
+    background: #DDE6F0; transition: background 0.4s;
+  }
+  .progress-step.done { background: var(--primary); }
+  .progress-step.active { background: var(--accent); border: 2px solid var(--primary); }
+
+  /* MAIN */
+  .main { padding: 24px; }
+
+  .phase-label {
+    font-size: 0.82rem; font-weight: 700; color: var(--primary);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+  }
+
+  .message-box {
+    background: #EBF4FF;
+    border-left: 5px solid var(--primary);
+    border-radius: 0 16px 16px 0;
+    padding: 20px; margin-bottom: 24px;
+  }
+  .message-box p {
+    font-size: 1.45rem; font-weight: 700; line-height: 1.55; color: var(--text);
+    margin-bottom: 6px;
+  }
+  .message-box p:last-child { margin-bottom: 0; }
+
+  /* ACTIVITY CARDS */
+  .activity-grid {
+    display: grid; grid-template-columns: 1fr;
+    gap: 14px; margin-bottom: 24px;
+  }
+  .activity-btn {
+    background: var(--card);
+    border: 3px solid #D0E3F5;
+    border-radius: 20px; padding: 20px;
+    cursor: pointer; text-align: left;
+    font-family: var(--font); transition: all 0.2s;
+    display: flex; align-items: center; gap: 16px;
+    min-height: 90px;
+  }
+  .activity-btn:hover, .activity-btn:focus {
+    border-color: var(--primary); background: #EBF4FF;
+    outline: none; transform: scale(1.02);
+    box-shadow: 0 4px 18px rgba(45,125,210,0.18);
+  }
+  .activity-btn:active { transform: scale(0.98); }
+  .activity-num {
+    width: 48px; height: 48px; background: var(--primary);
+    color: white; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; font-weight: 900; flex-shrink: 0;
+  }
+  .activity-emoji { font-size: 2.8rem; line-height: 1; flex-shrink: 0; }
+  .activity-content .activity-label { font-size: 1.3rem; font-weight: 900; color: var(--text); }
+  .activity-content .activity-desc { font-size: 1rem; color: var(--text-light); margin-top: 3px; }
+
+  /* CHOICE CARDS */
+  .choices {
+    display: grid; grid-template-columns: 1fr;
+    gap: 14px; margin-bottom: 24px;
+  }
+  .choice-btn {
+    background: var(--card); border: 3px solid #D0E3F5;
+    border-radius: 20px; padding: 18px 20px;
+    cursor: pointer; text-align: left;
+    font-family: var(--font); transition: all 0.2s;
+    display: flex; align-items: center; gap: 16px; min-height: 80px;
+  }
+  .choice-btn:hover, .choice-btn:focus {
+    border-color: var(--primary); background: #EBF4FF;
+    outline: none; transform: scale(1.02);
+    box-shadow: 0 4px 16px rgba(45,125,210,0.15);
+  }
+  .choice-btn.selected { border-color: var(--primary); background: #EBF4FF; }
+  .choice-btn:active { transform: scale(0.98); }
+  .choice-num {
+    width: 44px; height: 44px; background: var(--primary);
+    color: white; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; font-weight: 900; flex-shrink: 0;
+  }
+  .choice-content { flex: 1; }
+  .choice-emoji { font-size: 2.4rem; line-height: 1; display: block; margin-bottom: 4px; }
+  .choice-label { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+  .choice-desc { font-size: 0.95rem; color: var(--text-light); margin-top: 2px; }
+
+  /* BUTTONS */
+  .btn {
+    width: 100%; padding: 22px;
+    font-family: var(--font); font-size: 1.4rem; font-weight: 900;
+    border: none; border-radius: 20px; cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    min-height: 72px;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:focus { outline: 4px solid var(--accent); outline-offset: 2px; }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-secondary { background: var(--secondary); color: white; }
+  .btn-danger { background: var(--danger); color: white; margin-top: 12px; }
+
+  .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .btn-yes { background: #2ECC71; color: white; font-size: 1.5rem; min-height: 72px; }
+  .btn-no  { background: var(--danger); color: white; font-size: 1.5rem; min-height: 72px; }
+  .btn-yes:hover { background: #27AE60; }
+  .btn-no:hover  { background: #C0392B; }
+
+  /* ACTIVITY BADGE */
+  .activity-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #EBF4FF; border: 2px solid var(--primary);
+    border-radius: 99px; padding: 6px 16px;
+    font-size: 1rem; font-weight: 700; color: var(--primary);
+    margin-bottom: 16px;
+  }
+
+  /* SUMMARY */
+  .summary-list { list-style: none; margin: 0 0 24px; }
+  .summary-list li {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 0; border-bottom: 2px dashed #DDE6F0;
+    font-size: 1.2rem; font-weight: 700;
+  }
+  .sum-emoji { font-size: 2rem; }
+
+  /* SOPHIE */
+  .sophie-box {
+    background: #FFF3E0; border: 3px solid #FF9800;
+    border-radius: 20px; padding: 24px; text-align: center; margin-bottom: 24px;
+  }
+  .sophie-box .big-emoji { font-size: 4rem; margin-bottom: 8px; }
+  .sophie-box p { font-size: 1.3rem; font-weight: 700; margin-bottom: 10px; }
+
+  /* TTS BUTTON */
+  .tts-btn {
+    position: fixed; bottom: 20px; right: 20px;
+    width: 64px; height: 64px; background: var(--primary);
+    color: white; border: none; border-radius: 50%;
+    font-size: 1.8rem; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    z-index: 999;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tts-btn:focus { outline: 4px solid var(--accent); }
+
+  /* SCAN */
+  .scan-section {
+    background: #F0FFF4; border: 3px dashed #3BB273;
+    border-radius: 20px; padding: 18px; text-align: center;
+    margin-bottom: 20px; cursor: pointer;
+  }
+  .scan-section p { font-size: 1.05rem; font-weight: 700; margin-top: 6px; }
+  .scan-preview { width: 100%; max-height: 160px; object-fit: contain; border-radius: 12px; margin-top: 10px; }
+
+  /* LOADING */
+  .loading {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 60px 24px; text-align: center;
+  }
+  .spinner {
+    width: 64px; height: 64px;
+    border: 6px solid #DDE6F0; border-top-color: var(--primary);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+    margin-bottom: 20px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { font-size: 1.3rem; font-weight: 700; }
+
+  .sr-only {
+    position: absolute; left: -9999px; top: auto;
+    width: 1px; height: 1px; overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useRef } = React;
+
+// ── API Key (hardcoded, can be overridden in localStorage) ────────────────────
+const DEFAULT_API_KEY = "aa79749e92771034bc5d5c15c30cc22e";
+const TAMPERE = { lat: 61.4981, lon: 23.7608 };
+
+async function fetchWeather() {
+  const key = localStorage.getItem("owm_key") || DEFAULT_API_KEY;
+  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${TAMPERE.lat}&lon=${TAMPERE.lon}&appid=${key}&units=metric`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Weather API error " + res.status);
+  return res.json();
+}
+
+function classifyWeather(data) {
+  const temp = data.main.temp;
+  const main = data.weather[0].main.toLowerCase();
+  const isRain = main.includes("rain") || main.includes("drizzle");
+  const isSnow = main.includes("snow");
+  if (isSnow || temp < 0)  return { type:"SNOW",      emoji:"❄️", label:`It is snowing in Tampere today. ❄️`,     temp };
+  if (temp < 5)            return { type:"VERY_COLD", emoji:"🥶", label:`It is very cold in Tampere today. 🥶`,  temp };
+  if (isRain)              return { type:"RAIN",      emoji:"🌧️", label:`It is raining in Tampere today. 🌧️`,   temp };
+  if (temp < 15)           return { type:"COOL",      emoji:"🌤️", label:`It is cool in Tampere today. 🌤️`,     temp };
+  return                          { type:"WARM",      emoji:"☀️", label:`It is warm in Tampere today. ☀️`,      temp };
+}
+
+// ── Activities ────────────────────────────────────────────────────────────────
+const ACTIVITIES = [
+  { id:"work",  emoji:"💼", label:"Go to work",       desc:"Office, school, or job" },
+  { id:"outside",emoji:"🌳",label:"Go outside",       desc:"Walk, shopping, or park" },
+  { id:"home",  emoji:"🏠", label:"Stay at home",     desc:"Relax, rest, or home tasks" },
+];
+
+// ── Outfit options per weather + activity ─────────────────────────────────────
+function getOutfitOptions(weatherType, activity) {
+  const W = weatherType;
+  const A = activity;
+
+  // SHOES
+  let shoes;
+  if (W === "RAIN" || W === "SNOW") {
+    shoes = [
+      { emoji:"👢", label:"Rain boots",       desc:"Keeps feet dry" },
+      { emoji:"🥾", label:"Waterproof boots", desc:"For heavy rain or snow" },
+      { emoji:"👟", label:"Waterproof sneakers", desc:"For light rain" },
+    ];
+  } else if (W === "VERY_COLD") {
+    shoes = [
+      { emoji:"🥾", label:"Winter boots",     desc:"Warm fur inside" },
+      { emoji:"🥾", label:"Short winter shoes",desc:"With warm sole" },
+      { emoji:"👟", label:"Thick sneakers",   desc:"With thermal socks" },
+    ];
+  } else if (A === "work") {
+    shoes = [
+      { emoji:"👞", label:"Smart shoes",      desc:"Good for the office" },
+      { emoji:"👟", label:"Clean sneakers",   desc:"Casual but neat" },
+      { emoji:"👠", label:"Low heels",        desc:"Smart and comfortable" },
+    ];
+  } else {
+    shoes = [
+      { emoji:"👟", label:"Light sneakers",   desc:"Comfortable outside" },
+      { emoji:"🥿", label:"Flat shoes",       desc:"Easy to put on" },
+      { emoji:"🩴", label:"Sandals",          desc:"For very warm days" },
+    ];
+  }
+
+  // PANTS
+  let pants;
+  if (W === "VERY_COLD" || W === "SNOW") {
+    pants = [
+      { emoji:"👖", label:"Wool trousers",    desc:"Very warm" },
+      { emoji:"👖", label:"Thick jeans",      desc:"With thermal underwear" },
+      { emoji:"👖", label:"Fleece trousers",  desc:"Soft and warm" },
+    ];
+  } else if (W === "RAIN") {
+    pants = [
+      { emoji:"👖", label:"Dark jeans",       desc:"Water-resistant" },
+      { emoji:"👖", label:"Rain trousers",    desc:"Keeps you dry" },
+      { emoji:"👖", label:"Quick-dry trousers",desc:"Light and practical" },
+    ];
+  } else if (A === "work") {
+    pants = [
+      { emoji:"👖", label:"Smart trousers",   desc:"For the office" },
+      { emoji:"👖", label:"Neat jeans",       desc:"Smart casual" },
+      { emoji:"👗", label:"Smart skirt",      desc:"Office style" },
+    ];
+  } else if (A === "home") {
+    pants = [
+      { emoji:"👖", label:"Comfortable trousers", desc:"Soft and relaxed" },
+      { emoji:"🩲", label:"Sweatpants",       desc:"Very cozy at home" },
+      { emoji:"👖", label:"Leggings",         desc:"Stretchy and warm" },
+    ];
+  } else {
+    pants = [
+      { emoji:"👖", label:"Light trousers",   desc:"Airy and comfortable" },
+      { emoji:"👗", label:"Light skirt",      desc:"For warm days" },
+      { emoji:"👖", label:"Casual jeans",     desc:"Good for outside" },
+    ];
+  }
+
+  // SHIRT
+  let shirt;
+  if (W === "VERY_COLD" || W === "SNOW") {
+    shirt = [
+      { emoji:"🧶", label:"Thick sweater",    desc:"Wool or fleece" },
+      { emoji:"👕", label:"Thermal + sweater",desc:"Two warm layers" },
+      { emoji:"🧥", label:"Fleece pullover",  desc:"Light and warm" },
+    ];
+  } else if (W === "RAIN") {
+    shirt = [
+      { emoji:"🧥", label:"Hoodie",           desc:"With hood" },
+      { emoji:"👕", label:"Light sweater",    desc:"Comfortable" },
+      { emoji:"👕", label:"Long-sleeve shirt",desc:"Good for rain days" },
+    ];
+  } else if (A === "work") {
+    shirt = [
+      { emoji:"👔", label:"Blouse or shirt",  desc:"Smart for the office" },
+      { emoji:"🧶", label:"Smart sweater",    desc:"Professional look" },
+      { emoji:"👕", label:"Neat T-shirt",     desc:"Casual office style" },
+    ];
+  } else if (A === "home") {
+    shirt = [
+      { emoji:"👕", label:"Cozy T-shirt",     desc:"Soft and relaxed" },
+      { emoji:"🧥", label:"Cozy sweater",     desc:"Warm and comfy" },
+      { emoji:"👕", label:"Long-sleeve top",  desc:"Comfortable at home" },
+    ];
+  } else {
+    shirt = [
+      { emoji:"👕", label:"T-shirt",          desc:"Light and airy" },
+      { emoji:"👕", label:"Light blouse",     desc:"Nice for warm days" },
+      { emoji:"👕", label:"Casual shirt",     desc:"Comfortable outside" },
+    ];
+  }
+
+  // JACKET
+  let jacket;
+  if (W === "VERY_COLD" || W === "SNOW") {
+    jacket = [
+      { emoji:"🧥", label:"Winter coat",      desc:"Very warm wool" },
+      { emoji:"🧥", label:"Down jacket",      desc:"Light and very warm" },
+      { emoji:"🧥", label:"Thick winter jacket",desc:"With hood" },
+    ];
+  } else if (W === "RAIN") {
+    jacket = [
+      { emoji:"🧥", label:"Rain jacket",      desc:"Waterproof" },
+      { emoji:"🧥", label:"Hooded rain jacket",desc:"Keeps you dry" },
+      { emoji:"🧥", label:"Windbreaker",      desc:"Light and water-resistant" },
+    ];
+  } else if (A === "home") {
+    jacket = [
+      { emoji:"🧥", label:"No jacket needed", desc:"You stay inside" },
+      { emoji:"🧥", label:"Light cardigan",   desc:"If you feel cold inside" },
+      { emoji:"🧥", label:"House robe",       desc:"Warm and cozy" },
+    ];
+  } else if (A === "work") {
+    jacket = [
+      { emoji:"🧥", label:"Smart blazer",     desc:"Professional look" },
+      { emoji:"🧥", label:"Light coat",       desc:"For cooler moments" },
+      { emoji:"🧥", label:"Trench coat",      desc:"Elegant and practical" },
+    ];
+  } else {
+    jacket = [
+      { emoji:"🧥", label:"Light jacket",     desc:"For cooler moments" },
+      { emoji:"🧥", label:"Thin cardigan",    desc:"Cozy and casual" },
+      { emoji:"🧥", label:"No jacket",        desc:"It is warm enough" },
+    ];
+  }
+
+  // ACCESSORY
+  let accessory;
+  if (W === "VERY_COLD" || W === "SNOW") {
+    accessory = [
+      { emoji:"🧣", label:"Scarf + hat + gloves", desc:"All three together" },
+      { emoji:"🧤", label:"Hat + gloves",     desc:"Two items" },
+      { emoji:"🧣", label:"Only scarf",       desc:"For the neck" },
+    ];
+  } else if (W === "RAIN") {
+    accessory = [
+      { emoji:"☂️", label:"Umbrella",         desc:"Stays dry" },
+      { emoji:"🧢", label:"Rain cap",         desc:"With a brim" },
+      { emoji:"☂️", label:"Umbrella + cap",   desc:"Double protection" },
+    ];
+  } else if (A === "home") {
+    accessory = [
+      { emoji:"🧦", label:"Warm socks",       desc:"Cozy at home" },
+      { emoji:"🎒", label:"Nothing needed",   desc:"You are at home" },
+      { emoji:"🧣", label:"Light scarf",      desc:"If it is drafty" },
+    ];
+  } else {
+    accessory = [
+      { emoji:"🕶️", label:"Sunglasses",       desc:"For the sun" },
+      { emoji:"🧢", label:"Cap",              desc:"Against the sun" },
+      { emoji:"🎒", label:"No accessory",     desc:"Not needed today" },
+    ];
+  }
+
+  return { shoes, pants, shirt, jacket, accessory };
+}
+
+const PHASES = ["shoes","pants","shirt","jacket","accessory"];
+const PHASE_LABELS = {
+  shoes:     "Shoes 👟",
+  pants:     "Trousers 👖",
+  shirt:     "Top 👕",
+  jacket:    "Jacket 🧥",
+  accessory: "Accessory 🧣",
+};
+
+// ── TTS ───────────────────────────────────────────────────────────────────────
+function speak(text) {
+  if (!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const clean = text.replace(/[\u{1F000}-\u{1FFFF}]/gu, "").replace(/[☀🌧❄☂]/g,"");
+  const utt = new SpeechSynthesisUtterance(clean);
+  utt.lang = "en-GB";
+  utt.rate = 0.85;
+  window.speechSynthesis.speak(utt);
+}
+
+// ── App ───────────────────────────────────────────────────────────────────────
+function App() {
+  const [screen, setScreen]       = useState("loading");
+  const [weather, setWeather]     = useState(null);
+  const [weatherErr, setWeatherErr] = useState("");
+  const [activity, setActivity]   = useState(null);
+  const [phaseIndex, setPhaseIndex] = useState(0);
+  const [selected, setSelected]   = useState(null);
+  const [choices, setChoices]     = useState({});
+  const [ttsOn, setTtsOn]         = useState(true);
+  const [scanImage, setScanImage] = useState(null);
+  const fileRef = useRef();
+
+  const currentPhase = PHASES[phaseIndex];
+
+  function say(msg) { if (ttsOn) speak(msg); }
+
+  // Load weather on mount
+  React.useEffect(() => {
+    fetchWeather()
+      .then(data => {
+        const w = classifyWeather(data);
+        setWeather(w);
+        setScreen("ready");
+        setTimeout(() => say("Hey Barbara. " + w.label.replace(/[^\x00-\x7F]/g,"") + " I will help you choose your clothes."), 600);
+      })
+      .catch(() => {
+        setWeatherErr("Could not load weather. Using demo mode. 🌤️");
+        const demo = { type:"COOL", emoji:"🌤️", label:"It is cool in Tampere today. 🌤️", temp:10 };
+        setWeather(demo);
+        setScreen("ready");
+      });
+  }, []);
+
+  function startOutfit() {
+    setScreen("activity");
+    say("What are you doing today? Choose 1, 2, or 3.");
+  }
+
+  function selectActivity(act) {
+    setActivity(act);
+    setPhaseIndex(0);
+    setChoices({});
+    setSelected(null);
+    setScreen("phase");
+    say("Activity chosen: " + act.label + ". Now let us choose your shoes. Press 1, 2, or 3.");
+  }
+
+  function handleChoice(idx) {
+    setSelected(idx);
+    const opts = getOutfitOptions(weather.type, activity?.id);
+    const item = opts[currentPhase][idx];
+    say("You chose: " + item.label + ". Is that right?");
+    setScreen("confirm");
+  }
+
+  function confirmYes() {
+    const opts = getOutfitOptions(weather.type, activity?.id);
+    const item = opts[currentPhase][selected];
+    const newChoices = { ...choices, [currentPhase]: item };
+    setChoices(newChoices);
+    if (phaseIndex + 1 >= PHASES.length) {
+      setScreen("summary");
+      say("This is your outfit today. You are ready!");
+    } else {
+      const next = PHASES[phaseIndex + 1];
+      setPhaseIndex(phaseIndex + 1);
+      setSelected(null);
+      setScanImage(null);
+      setScreen("phase");
+      say("Okay. Now choose your " + next + ". Press 1, 2, or 3.");
+    }
+  }
+
+  function confirmNo() {
+    setSelected(null);
+    setScreen("phase");
+    say("Okay. Choose again.");
+  }
+
+  function callSophie() { setScreen("sophie"); say("Please call Sophie now. I will wait here."); }
+
+  function resumeFromSophie() {
+    if (phaseIndex < PHASES.length && activity) setScreen("phase");
+    else if (activity) setScreen("phase");
+    else setScreen("ready");
+  }
+
+  function restart() {
+    setScreen("ready"); setPhaseIndex(0);
+    setChoices({}); setSelected(null);
+    setActivity(null); setScanImage(null);
+  }
+
+  function handleScan(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => setScanImage(ev.target.result);
+    reader.readAsDataURL(file);
+  }
+
+  const opts = weather && activity ? getOutfitOptions(weather.type, activity.id) : {};
+
+  // ── LOADING ──
+  if (screen === "loading") return (
+    <div className="app">
+      <div className="header"><h1>ClothingBot 🌟</h1><div className="subtitle">Loading weather for Tampere...</div></div>
+      <div className="loading" aria-live="polite" aria-busy="true">
+        <div className="spinner" role="status" aria-label="Loading..."></div>
+        <p>Getting the weather in Tampere... 🌍</p>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="app" role="main">
+      <a href="#main-content" className="sr-only">Skip to main content</a>
+
+      {/* Header */}
+      <div className="header">
+        <h1>ClothingBot 🌟</h1>
+        <div className="subtitle">Tampere – Outfit Helper for Barbara</div>
+      </div>
+
+      {/* Weather */}
+      {weather && (
+        <div className="weather-banner" aria-label={"Current weather: " + weather.label}>
+          <span className="weather-icon" aria-hidden="true">{weather.emoji}</span>
+          <span>{weather.label}</span>
+          <span style={{marginLeft:"auto",fontSize:"1rem",opacity:0.9}}>{Math.round(weather.temp)}°C</span>
+        </div>
+      )}
+      {weatherErr && <div style={{background:"#FFF3E0",padding:"10px 20px",fontSize:"0.95rem",fontWeight:700,color:"#E65100"}}>{weatherErr}</div>}
+
+      {/* Progress (only during outfit phases) */}
+      {(screen === "phase" || screen === "confirm") && (
+        <div className="progress-bar-wrap" role="progressbar"
+          aria-valuenow={phaseIndex+1} aria-valuemin={1} aria-valuemax={PHASES.length}
+          aria-label={`Step ${phaseIndex+1} of ${PHASES.length}`}>
+          {PHASES.map((p, i) => (
+            <div key={p} className={`progress-step ${i < phaseIndex ? "done" : i === phaseIndex ? "active" : ""}`} />
+          ))}
+        </div>
+      )}
+
+      <main id="main-content">
+
+        {/* ── READY ── */}
+        {screen === "ready" && (
+          <div className="main">
+            <div className="message-box" aria-live="polite">
+              <p>Hey Barbara. 🌟</p>
+              <p>{weather?.label}</p>
+              <p>I will help you choose your clothes. 👕</p>
+              <p>Are you ready?</p>
+            </div>
+            <button className="btn btn-primary" onClick={startOutfit} aria-label="Yes, I am ready">
+              ✅ Yes, I am ready!
+            </button>
+            <button className="btn btn-danger" onClick={callSophie} aria-label="Call Sophie">
+              👩 Call Sophie
+            </button>
+          </div>
+        )}
+
+        {/* ── ACTIVITY SELECTION ── */}
+        {screen === "activity" && (
+          <div className="main">
+            <div className="message-box" aria-live="polite">
+              <p>What are you doing today? 🤔</p>
+              <p>Choose 1, 2, or 3. 👇</p>
+            </div>
+            <div className="activity-grid" role="group" aria-label="Choose your activity">
+              {ACTIVITIES.map((act, i) => (
+                <button key={act.id} className="activity-btn"
+                  onClick={() => selectActivity(act)}
+                  aria-label={`Option ${i+1}: ${act.label}. ${act.desc}`}>
+                  <div className="activity-num" aria-hidden="true">{i+1}</div>
+                  <span className="activity-emoji" aria-hidden="true">{act.emoji}</span>
+                  <div className="activity-content">
+                    <div className="activity-label">{act.label}</div>
+                    <div className="activity-desc">{act.desc}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <button className="btn btn-danger" onClick={callSophie} aria-label="Call Sophie">
+              👩 Call Sophie
+            </button>
+          </div>
+        )}
+
+        {/* ── PHASE ── */}
+        {screen === "phase" && opts[currentPhase] && (
+          <div className="main">
+            <div className="phase-label">Step {phaseIndex+1} of {PHASES.length}</div>
+
+            {activity && (
+              <div className="activity-badge" aria-label={"Activity: " + activity.label}>
+                <span aria-hidden="true">{activity.emoji}</span> {activity.label}
+              </div>
+            )}
+
+            <div className="message-box" aria-live="polite">
+              <p>Choose your <strong>{PHASE_LABELS[currentPhase]}</strong></p>
+              <p>Press 1, 2, or 3. 👇</p>
+            </div>
+
+            {/* Scan */}
+            <div className="scan-section" onClick={() => fileRef.current?.click()}
+              role="button" tabIndex={0} aria-label="Take a photo of clothing item"
+              onKeyDown={e => e.key === "Enter" && fileRef.current?.click()}>
+              <span style={{fontSize:"2rem"}}>📷</span>
+              <p>Take a photo of your clothing item (optional) 📷</p>
+              <p style={{fontSize:"0.85rem",color:"#666",fontWeight:400}}>Photo is not saved. GDPR compliant ✅</p>
+              {scanImage && <img src={scanImage} alt="Your scanned clothing item" className="scan-preview" />}
+            </div>
+            <input ref={fileRef} type="file" accept="image/*" capture="environment"
+              style={{display:"none"}} onChange={handleScan} aria-label="Upload image" />
+
+            <div className="choices" role="group" aria-label={`Choose ${PHASE_LABELS[currentPhase]}`}>
+              {opts[currentPhase].map((item, i) => (
+                <button key={i} className={`choice-btn ${selected === i ? "selected" : ""}`}
+                  onClick={() => handleChoice(i)}
+                  aria-label={`Option ${i+1}: ${item.label}. ${item.desc}`}>
+                  <div className="choice-num" aria-hidden="true">{i+1}</div>
+                  <div className="choice-content">
+                    <span className="choice-emoji" aria-hidden="true">{item.emoji}</span>
+                    <div className="choice-label">{item.label}</div>
+                    <div className="choice-desc">{item.desc}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <button className="btn btn-danger" onClick={callSophie} aria-label="Call Sophie">
+              👩 Call Sophie
+            </button>
+          </div>
+        )}
+
+        {/* ── CONFIRM ── */}
+        {screen === "confirm" && selected !== null && opts[currentPhase] && (
+          <div className="main">
+            <div className="message-box" aria-live="assertive">
+              <p>You chose:</p>
+              <p style={{fontSize:"1.9rem"}}>{opts[currentPhase][selected].emoji} <strong>{opts[currentPhase][selected].label}</strong></p>
+              <p>Is that right? ✅</p>
+            </div>
+            <div className="btn-row">
+              <button className="btn btn-yes" onClick={confirmYes} aria-label="Yes, that is right">✅ Yes</button>
+              <button className="btn btn-no"  onClick={confirmNo}  aria-label="No, choose again">❌ No</button>
+            </div>
+            <button className="btn btn-danger" onClick={callSophie} style={{marginTop:12}} aria-label="Call Sophie">
+              👩 Call Sophie
+            </button>
+          </div>
+        )}
+
+        {/* ── SOPHIE ── */}
+        {screen === "sophie" && (
+          <div className="main">
+            <div className="sophie-box" aria-live="assertive" role="alert">
+              <div className="big-emoji">👩</div>
+              <p>Please call Sophie now. 📞</p>
+              <p>I will wait here. 🐢</p>
+              <p style={{fontSize:"0.95rem",color:"#888",fontWeight:400,marginTop:8}}>
+                Sophie is your trusted person. She will help you.
+              </p>
+            </div>
+            <button className="btn btn-secondary" onClick={resumeFromSophie} aria-label="I am okay, continue">
+              ✅ I am okay. Continue.
+            </button>
+            <button className="btn btn-primary" style={{marginTop:12}} onClick={restart} aria-label="Start again">
+              🔄 Start again
+            </button>
+          </div>
+        )}
+
+        {/* ── SUMMARY ── */}
+        {screen === "summary" && (
+          <div className="main">
+            {activity && (
+              <div className="activity-badge" aria-label={"Activity: " + activity.label}>
+                <span aria-hidden="true">{activity.emoji}</span> {activity.label}
+              </div>
+            )}
+            <div className="message-box" aria-live="polite">
+              <p>This is your outfit today. 👗</p>
+              <p>You are ready! ✅</p>
+            </div>
+            <ul className="summary-list" aria-label="Your outfit today">
+              {PHASES.map(p => choices[p] ? (
+                <li key={p}>
+                  <span className="sum-emoji" aria-hidden="true">{choices[p].emoji}</span>
+                  <div>
+                    <div style={{fontSize:"0.85rem",color:"var(--primary)",fontWeight:700}}>{PHASE_LABELS[p]}</div>
+                    <div style={{fontSize:"1.2rem",fontWeight:700}}>{choices[p].label}</div>
+                  </div>
+                </li>
+              ) : null)}
+            </ul>
+            <button className="btn btn-primary" onClick={restart} aria-label="Start again">
+              🔄 Start again
+            </button>
+            <button className="btn btn-danger" onClick={callSophie} aria-label="Call Sophie">
+              👩 Call Sophie
+            </button>
+          </div>
+        )}
+
+      </main>
+
+      {/* TTS toggle */}
+      <button className="tts-btn"
+        onClick={() => { setTtsOn(v => { if(!v) speak("Voice on."); else window.speechSynthesis?.cancel(); return !v; }); }}
+        aria-label={ttsOn ? "Turn off voice" : "Turn on voice"}
+        title={ttsOn ? "Turn off voice" : "Turn on voice"}>
+        {ttsOn ? "🔊" : "🔇"}
+      </button>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
